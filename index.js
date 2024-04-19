@@ -4,6 +4,9 @@ const csv = require("csvtojson");
 const fs = require("fs");
 const path = require("path");
 
+const fetch = require('node-fetch')
+//const fetch = require('node-fetch'); // Require node-fetch
+
 const app = express();
 const port = 8080;
 
@@ -12,6 +15,7 @@ const upload = multer({ dest: "uploads/" });
 
 // Serve HTML form for uploading CSV
 app.get("/", (req, res) => {
+ console.log('rote hitted')
  res.sendFile(path.join(__dirname, "index.html"));
 });
 
@@ -22,6 +26,7 @@ app.post("/upload-csv", upload.single("csvFile"), async (req, res) => {
   if (!req.file) {
    return res.status(400).json({ error: "No file provided" });
   }
+
 
   // Convert CSV to JSON
   const jsonObj = await csv().fromFile(req.file.path);
@@ -72,7 +77,14 @@ app.post("/upload-csv", upload.single("csvFile"), async (req, res) => {
  }
 });
 
+function pingServer() {
+ fetch('https://csvtojsonforcompapp.onrender.com/') // Replace with your actual deployment URL
+  .then(response => response.text())
+  .catch(err => console.error('Error pinging server:', err));
+}
+
 // Start the server
 app.listen(port, () => {
  console.log(`Server is listening on port ${port}`);
+ setInterval(pingServer, 120000);
 });
